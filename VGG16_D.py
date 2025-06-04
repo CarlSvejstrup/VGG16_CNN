@@ -187,7 +187,8 @@ class VGG16D(torch.nn.Module):
             nn.ReLU(),
             nn.Dropout(dropout_probs),
             nn.Linear(in_features=4096, out_features=10),
-            nn.Softmax(),
+            # Softmax is unnecessary here as CrossEntropyLoss expects raw logits
+            # nn.Softmax(dim=1),
         ).to(device)
 
         self.criterion = nn.CrossEntropyLoss()
@@ -272,19 +273,19 @@ class VGG16D(torch.nn.Module):
         random_indices = np.random.choice(
             len(self.dataset) - 1, num_predictions, replace=False
         )
-        classifcations = []
+        classifications = []
         labels = []
         images = []
         for idx in random_indices:
             img, label = self.dataset.__getitem__(idx)
 
-            classifcation = torch.argmax(self(img.unsqueeze(dim=0)), dim=1)
+            classification = torch.argmax(self(img.unsqueeze(dim=0)), dim=1)
 
-            classifcations.append(classifcation)
+            classifications.append(classification)
             labels.append(label)
             images.append(img)
 
-        return classifcations, labels, images
+        return classifications, labels, images
 
 
 def get_vgg_weights(model):
